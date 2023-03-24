@@ -1,6 +1,6 @@
 from services.namespace import Namespace
 
-base_link = "http://localhost:8080/api/v1/"
+base_link = "http://172.28.48.1:8080/api/v1/"
 
 links = {
     "position":Namespace({
