@@ -2,13 +2,15 @@ from typing import Union
 from fastapi import FastAPI
 
 from interfaces.employee import get_employee_list_bio_data
+from interfaces.employee import get_employee_list_checkin_data
 
 app = FastAPI()
 
 
 @app.get("/")
 def read_root():
-    return get_employee_list_bio_data()
+    emp_data = get_employee_list_bio_data()
+    return get_employee_list_checkin_data(emp_data, "2023-04-01","2023-04-30")
 
 
 @app.get("/items/{item_id}")
