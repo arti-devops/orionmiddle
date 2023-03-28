@@ -43,3 +43,7 @@ def compute_nb_finished_tasks(taskrole):
 
 def compute_progress(finished:int, nb:int):
     return finished/nb*100
+
+def slice_fullname(fname:str, n:int):
+    l = fname.split(" ")[:n]
+    return " ".join(l)

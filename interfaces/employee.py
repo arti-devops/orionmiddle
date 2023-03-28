@@ -10,7 +10,9 @@ def get_employee_list_bio_data():
         emp_data = dict()
         emp_data["position_id"] = p["positionId"]
         emp_data["employee_id"] = p["employee"]["employeeId"]
-        emp_data["fullname"] = p["employee"]["lastName"] +" "+ p["employee"]["firstName"].strip() 
+        fullname = p["employee"]["lastName"] +" "+ p["employee"]["firstName"].strip() 
+        fullname = slice_fullname(fullname, 2)
+        emp_data["fullname"] = fullname 
         emp_data["matricula"] = p["employee"]["matricule"]
         emp_data["rolename"] = p["role"]["name"]
         emp_data["direction"] = get_direction_name(p)
