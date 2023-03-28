@@ -36,3 +36,10 @@ def generate_daterange_link(link, positionId:int, startDate:str, endDate:str):
 
 def generate_position_req_link(link, p):
     return base_link + link.position + str(p)
+
+def compute_nb_finished_tasks(taskrole):
+    finished = [x["task"]["status"] for x in taskrole if x["task"]["status"]=="FINISHED"]
+    return len(finished)
+
+def compute_progress(finished:int, nb:int):
+    return finished/nb*100

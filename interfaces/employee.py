@@ -45,3 +45,29 @@ def get_employee_list_checkin_data(emp_list:list, start_date:str, end_date:str):
         log_data_list.append(logd)
         emp["logs"] = logd
     return emp_list, log_data_list
+
+def get_employee_list_task_data(emp_list):
+    task_data_list = []
+    for emp in emp_list:
+
+        taskd = dict()
+
+        e = Namespace(emp)
+        pid = e.position_id
+
+        l = generate_position_req_link(links_ns.taskrole, pid)
+
+        d = requests.get(l).json()
+
+        if len(d) == 0:
+            task_data = {"nb_task":0,"nb_finished":0,"progress":0}
+        else:
+            nb = len(d)
+            finished = compute_nb_finished_tasks(d)
+            progress = compute_progress(finished, nb)
+
+            task_data = {"nb_task":nb, "nb_finished": finished, "progress":progress}
+
+        task_data_list.append(task_data)
+        emp["tasks"] = task_data
+    return emp_list, task_data_list
