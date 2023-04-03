@@ -3,6 +3,7 @@ import math
 from interfaces.employee import get_employee_list_bio_data
 from interfaces.employee import get_employee_list_checkin_data
 from interfaces.employee import get_employee_list_task_data
+from interfaces.employee import get_employee_bio_data
 
 def get_employee_list_page_data(s_date:str, e_date:str, q, perPage, currentPage):
     data = None
@@ -23,3 +24,6 @@ def get_employee_list_page_data(s_date:str, e_date:str, q, perPage, currentPage)
         sortedfilteredUsers = sortedfilteredUsers[firstIndex:lastIndex]
         data = {"users": sortedfilteredUsers, "totalPage": totalPage, "totalUsers": totalUsers}
     return data
+
+def get_employee_details_page_data(p:str):
+    return {"bio":get_employee_bio_data(p)}

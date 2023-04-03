@@ -16,6 +16,13 @@ def get_direction_name(p):
             return div["shortName"]
         else: return p.subdivision["shortName"]
 
+def get_service_name(p):
+    p = Namespace(p)
+    if p.service is not None:
+        return p.service["name"]
+    else:
+        return "AUCUN"
+
 def count_late_occurence(minuteDiffs:list):
     occurences = [1 for t in minuteDiffs if t<0]
     return len(occurences)

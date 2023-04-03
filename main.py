@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from services.links import links_ns
 
 from controllers.employee import get_employee_list_page_data
+from controllers.employee import get_employee_details_page_data
 
 app = FastAPI()
 
@@ -29,6 +30,10 @@ def read_emp_list():
 async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1):
     data = get_employee_list_page_data("2023-04-01","2023-04-30", q, perPage, currentPage)
     return JSONResponse(content=data, headers=headers)
+
+@app.get("/api/v1/emp/details/{p}")
+async def get_employee(p:int):
+    return get_employee_details_page_data(str(p))
 
 
 @app.get("/items/{item_id}")
