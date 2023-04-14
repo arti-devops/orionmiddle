@@ -1,6 +1,6 @@
 import pandas as pd
 import datetime as dt
-from datetime import datetime
+from datetime import datetime, timedelta
 
 #date_string = "2023-03-01" "%Y-%m-%d"
 
@@ -30,3 +30,10 @@ def compute_word_days_in_month(date_string:str):
     year = extract_year_from_date(date_string)
     month = extract_month_from_date(date_string)
     return extract_workdays_in_month(year, month)
+
+def time_diff(start_time_str, end_time_str="08:10:00"):
+    start_time = datetime.strptime(start_time_str, '%H:%M:%S')
+    end_time = datetime.strptime(end_time_str, '%H:%M:%S')
+    time_delta = end_time - start_time
+    time_diff_seconds = int(time_delta.total_seconds())
+    return time_diff_seconds
