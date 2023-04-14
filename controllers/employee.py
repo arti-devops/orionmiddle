@@ -9,6 +9,7 @@ from interfaces.employee import get_employee_course_metadata
 from interfaces.employee import get_employee_evaluation_metadata
 from interfaces.employee import get_employee_task_metadata
 from interfaces.employee import get_all_employees_ondate_checkins
+from interfaces.employee import get_all_employees_late_occurence
 
 def get_employee_list_page_data(s_date:str, e_date:str, q, perPage, currentPage):
     data = None
@@ -43,4 +44,7 @@ def get_employee_details_page_data(p:str, dr_s:str, dr_e:str):
     }
 
 def get_dashboard_checkins_data(): #Todo Add date range
-    return get_all_employees_ondate_checkins('2023-04-23','2023-04-23')
+    return {
+        "checkins": get_all_employees_ondate_checkins('2023-04-23','2023-04-23'),
+        "late_occurence": get_all_employees_late_occurence('2023-04-01','2023-04-30')
+    }

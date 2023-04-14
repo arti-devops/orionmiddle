@@ -1,4 +1,6 @@
 import requests
+import json
+from pandas import json_normalize
 from itertools import groupby
 from services.date import *
 from services.links import *
@@ -140,3 +142,16 @@ def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
         "metadata":meta_data,
         "checkins":grouped_data
     }
+
+def get_all_employees_late_occurence(dr_s:str, dr_e:str): #Todo Add date range
+    log_data = requests.get(base_link+links_ns.logbook.prange+dr_s+'/'+dr_e).json()
+    df = json_normalize(log_data)
+    df["isLate"] = df["checkinTime"].map(time_diff) < 0
+    df_sn = df[["logbookId","isLate","position.positionId"]]
+    df_sn = df_sn.groupby('position.positionId').agg({'isLate': 'sum', 'logbookId': 'count'}).reset_index()
+    cols = ["position.positionId","position.employee.employeeId","position.employee.lastName","position.employee.firstName","isLate_x","logbookId_x"]
+    late_occ = df_sn.merge(df, on='position.positionId', how="left")[cols].drop_duplicates()
+    cols_new = ["positionId","employeeId","lastName","fisrtName","monthLateCount","monthLogCount"]
+    late_occ.columns = cols_new
+    late_occ = late_occ.to_json(orient="records")
+    return json.loads(late_occ)
