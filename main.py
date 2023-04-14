@@ -9,6 +9,7 @@ from services.links import links_ns
 
 from controllers.employee import get_employee_list_page_data
 from controllers.employee import get_employee_details_page_data
+from controllers.employee import get_dashboard_checkins_data
 
 app = FastAPI()
 
@@ -35,6 +36,9 @@ async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentP
 async def get_employee(p:int):
     return get_employee_details_page_data(str(p), "2023-04-01","2023-04-30")
 
+@app.get("/api/v1/dashboard/checkins/") #Todo Add date range
+async def get_dashboard_checkins():
+    return get_dashboard_checkins_data()
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Union[str, None] = None):

@@ -1,4 +1,5 @@
 import requests
+from itertools import groupby
 from services.date import *
 from services.links import *
 from services.processing import *
@@ -105,3 +106,37 @@ def get_employee_course_metadata(p:str):
     nb = len(course_data)
     done = len([1 for x in course_data if x["status"] == "FINISHED"])
     return dict({"nb":nb, "done":done})
+
+def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
+    log_data = requests.get(base_link+links_ns.logbook.prange+dr_s+'/'+dr_e).json()
+    grouped_data = []
+    for _, group in groupby(log_data, lambda x: x['position']['positionId']):
+        # Create a list of "logbookId" for each "positionId"
+        for x in group:
+            checkIn = x['checkinTime']
+            checkOut = x['checkoutTime']
+            d = {
+                "logbookId":x['logbookId'],
+                "positionId":x['position']['positionId'],
+                "employeeId":x['position']["employee"]["employeeId"],
+                "fullName":x['position']["employee"]["lastName"]+' '+x['position']["employee"]["firstName"],
+                "checkIn":checkIn,
+                "checkOut":checkOut,
+                "logCount":2,
+                "isLate": time_diff(checkIn) < 0
+                }
+        grouped_data.append(d)
+    
+    presence = len (grouped_data)
+    lateCount = len([1 for x in grouped_data if x["isLate"]==True])
+    logDate = log_data[0]["logDate"]
+    meta_data = {
+        "presence":presence,
+        "lateCount":lateCount,
+        "logDate":logDate
+    }
+
+    return {
+        "metadata":meta_data,
+        "checkins":grouped_data
+    }
