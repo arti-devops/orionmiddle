@@ -79,3 +79,29 @@ def get_employee_bio_data(positionId:str):
         emp_data["location"] = p["location"]
         emp_data_list.append(emp_data)
     return emp_data_list[0]
+
+def get_employee_absence_metadata(p:str, s:str, e:str):
+    req = requests.get(base_link+links_ns.absence.prange+p+'/'+s+'/'+e).json()
+    nb = len(req)
+    done = len([1 for x in req if x["justified"]=='yes'])
+    return dict({"nb":nb, "done":done})
+
+def get_employee_task_metadata(p:str):
+    done = 0
+    emp_task = requests.get(base_link+links_ns.taskrole.position+str(p)).json()
+    nb = len(emp_task)
+    if nb > 0:
+        done = computer_finished_tasks(get_taskrole_status_list(emp_task))
+    return dict({"nb":nb, "done":done})
+
+def get_employee_evaluation_metadata(p:str):
+    done = 0
+    eval_data = requests.get(base_link+links_ns.evaluation.position+str(p)).json()
+    nb = len(eval_data)
+    return dict({"nb":5, "done":nb})
+
+def get_employee_course_metadata(p:str):
+    course_data = requests.get(base_link+links_ns.course.position+str(p)).json()
+    nb = len(course_data)
+    done = len([1 for x in course_data if x["status"] == "FINISHED"])
+    return dict({"nb":nb, "done":done})

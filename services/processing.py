@@ -54,3 +54,9 @@ def compute_progress(finished:int, nb:int):
 def slice_fullname(fname:str, n:int):
     l = fname.split(" ")[:n]
     return " ".join(l)
+
+def get_taskrole_status_list(emp_taskrole):
+    return [x["task"]["status"] for x in emp_taskrole]
+
+def computer_finished_tasks(status_list):
+    return len([1 for x in status_list if x=="FINISHED"])

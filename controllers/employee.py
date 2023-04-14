@@ -4,6 +4,10 @@ from interfaces.employee import get_employee_list_bio_data
 from interfaces.employee import get_employee_list_checkin_data
 from interfaces.employee import get_employee_list_task_data
 from interfaces.employee import get_employee_bio_data
+from interfaces.employee import get_employee_absence_metadata
+from interfaces.employee import get_employee_course_metadata
+from interfaces.employee import get_employee_evaluation_metadata
+from interfaces.employee import get_employee_task_metadata
 
 def get_employee_list_page_data(s_date:str, e_date:str, q, perPage, currentPage):
     data = None
@@ -25,5 +29,14 @@ def get_employee_list_page_data(s_date:str, e_date:str, q, perPage, currentPage)
         data = {"users": sortedfilteredUsers, "totalPage": totalPage, "totalUsers": totalUsers}
     return data
 
-def get_employee_details_page_data(p:str):
-    return {"bio":get_employee_bio_data(p)}
+def get_employee_details_page_data(p:str, dr_s:str, dr_e:str):
+    employee_metadata = {
+        "absence":get_employee_absence_metadata(p, dr_s, dr_e),
+        "evaluation":get_employee_evaluation_metadata(p),
+        "task":get_employee_task_metadata(p),
+        "training":get_employee_course_metadata(p)
+    }
+    return {
+        "bio":get_employee_bio_data(p),
+        "metadata": employee_metadata
+    }

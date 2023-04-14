@@ -31,9 +31,9 @@ async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentP
     data = get_employee_list_page_data("2023-04-01","2023-04-30", q, perPage, currentPage)
     return JSONResponse(content=data, headers=headers)
 
-@app.get("/api/v1/emp/details/{p}")
+@app.get("/api/v1/employee/details/{p}")
 async def get_employee(p:int):
-    return get_employee_details_page_data(str(p))
+    return get_employee_details_page_data(str(p), "2023-04-01","2023-04-30")
 
 
 @app.get("/items/{item_id}")

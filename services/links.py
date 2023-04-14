@@ -1,6 +1,6 @@
 from services.namespace import Namespace
 
-base_link = "http://172.27.208.1:8080/api/v1/"
+base_link = "http://172.27.80.1:8080/api/v1/"
 
 links = {
     "position":Namespace({
@@ -32,6 +32,16 @@ links = {
         "range":"absence/range/", #{s}/{e}
         "prange":"absence/range/",#{p}/{s}/{e}
         "single":"absence/"
+    }),
+    "evaluation":Namespace({
+        "all":"evaluation/all",
+        "single":"evaluation/",
+        "position":"evaluation/position/",#{p}
+    }),
+    "course":Namespace({
+        "all":"course/all",
+        "single":"course/",
+        "position":"course/position/",#{p}
     })
 }
 
