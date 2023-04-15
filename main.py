@@ -27,7 +27,7 @@ def read_emp_list():
     pass
     # return get_employee_list_page_data("2023-04-01","2023-04-30")
 
-@app.get("/api/v1/emp/list")
+@app.get("/api/v1/employee/list")
 async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1):
     data = get_employee_list_page_data("2023-04-01","2023-04-30", q, perPage, currentPage)
     return JSONResponse(content=data, headers=headers)
