@@ -143,7 +143,7 @@ def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
         "checkins":grouped_data
     }
 
-def get_all_employees_late_occurence(dr_s:str, dr_e:str): #Todo Add date range
+def get_all_employees_late_occurence(dr_s:str, dr_e:str): #Todo Add date range from selected month name
     log_data = requests.get(base_link+links_ns.logbook.prange+dr_s+'/'+dr_e).json()
     df = json_normalize(log_data)
     df["isLate"] = df["checkinTime"].map(time_diff) < 0
@@ -153,5 +153,6 @@ def get_all_employees_late_occurence(dr_s:str, dr_e:str): #Todo Add date range
     late_occ = df_sn.merge(df, on='position.positionId', how="left")[cols].drop_duplicates()
     cols_new = ["positionId","employeeId","lastName","fisrtName","monthLateCount","monthLogCount"]
     late_occ.columns = cols_new
-    late_occ = late_occ.to_json(orient="records")
-    return json.loads(late_occ)
+    late_occ_sorted = late_occ.sort_values(["monthLateCount","monthLogCount"], ascending=[False,True])
+    late_occ_sorted = late_occ_sorted.to_json(orient="records")
+    return json.loads(late_occ_sorted)
