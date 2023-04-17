@@ -143,7 +143,9 @@ def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
         "checkins":grouped_data
     }
 
-def get_all_employees_late_occurence(dr_s:str, dr_e:str): #Todo Add date range from selected month name
+def get_all_employees_late_occurence(dr_s:str, dr_e:str): 
+    #Todo Add date range from selected month name
+    #Todo Add number of justified absences to monthLogCount
     log_data = requests.get(base_link+links_ns.logbook.prange+dr_s+'/'+dr_e).json()
     df = json_normalize(log_data)
     df["isLate"] = df["checkinTime"].map(time_diff) < 0
