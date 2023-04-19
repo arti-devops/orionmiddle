@@ -110,38 +110,24 @@ def get_employee_course_metadata(p:str):
     return dict({"nb":nb, "done":done})
 
 def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
-    log_data = requests.get(base_link+links_ns.logbook.prange+dr_s+'/'+dr_e).json()
+    #TODO function is subject to change if daily data contains many records from a single employee
+    log_data = requests.get(base_link+links_ns.logbook.range+dr_s+'/'+dr_e).json()
     if len(log_data)>0:
-        grouped_data = []
-        for _, group in groupby(log_data, lambda x: x['position']['positionId']):
-            # Create a list of "logbookId" for each "positionId"
-            for x in group:
-                checkIn = x['checkinTime']
-                checkOut = x['checkoutTime']
-                d = {
-                    "logbookId":x['logbookId'],
-                    "positionId":x['position']['positionId'],
-                    "employeeId":x['position']["employee"]["employeeId"],
-                    "fullName":x['position']["employee"]["lastName"]+' '+x['position']["employee"]["firstName"],
-                    "checkIn":checkIn,
-                    "checkOut":checkOut,
-                    "logCount":2,
-                    "isLate": time_diff(checkIn) < 0
-                    }
-            grouped_data.append(d)
-        
-        presence = len (grouped_data)
-        lateCount = len([1 for x in grouped_data if x["isLate"]==True])
-        logDate = log_data[0]["logDate"]
+        checkin_data = log_data
+        checkin_data = pd.json_normalize(checkin_data)
+        checkin_data["isLate"] = checkin_data["checkinTime"].map(time_diff) < 0
+        select_cols = ["logbookId","position.positionId","position.employee.employeeId","position.employee.lastName","position.employee.firstName","checkinTime","checkoutTime","isLate"]
+        rename_cols = ["logbookId","positionId","employeeId","lastName","firstName","checkinTime","checkoutTime","isLate"]
+        df = checkin_data[select_cols]
+        df.columns = rename_cols
         meta_data = {
-            "presence":presence,
-            "lateCount":lateCount,
-            "logDate":logDate
+            "late_count" : len([1 for x in df.isLate if x==True]),
+            "log_count" : df.shape[0]
         }
-
         return {
             "metadata":meta_data,
-            "checkins":grouped_data
+            "checkins":json.loads(df.to_json(orient="records")),
+            "debug":log_data
         }
     else: return list()
 

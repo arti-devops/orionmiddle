@@ -48,10 +48,13 @@ def get_employee_details_page_data(p:str, dr_s:str, dr_e:str):
 def get_dashboard_checkins_data(): 
     #Todo Add date range
     #TODO from seleted date, infer month, date range, workdays count
-    date_string = "2023-03-16"
+    date_string = "2023-03-23"
     fdate, ldate = get_first_and_last_date_of_month(date_string)
     return {
-        "checkins": get_all_employees_ondate_checkins(fdate, ldate),
+        "checkins": {
+            "log_date": date_string,
+            "checkins": get_all_employees_ondate_checkins(date_string, date_string),
+            },
         "late": {
             "late_date": ldate,
             "late_occurence": get_all_employees_late_occurence(fdate, ldate)
