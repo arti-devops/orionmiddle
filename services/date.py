@@ -37,3 +37,11 @@ def time_diff(start_time_str, end_time_str="08:10:00"):
     time_delta = end_time - start_time
     time_diff_seconds = int(time_delta.total_seconds())
     return time_diff_seconds
+
+def get_first_and_last_date_of_month(date_string):
+    date = datetime.strptime(date_string, '%Y-%m-%d')
+    first_date = datetime(date.year, date.month, 1)
+    last_date = datetime(date.year, date.month, 1) + timedelta(days=31)
+    last_date = last_date - timedelta(days=last_date.day)
+
+    return first_date.strftime("%Y-%m-%d"), last_date.strftime("%Y-%m-%d")
