@@ -111,50 +111,54 @@ def get_employee_course_metadata(p:str):
 
 def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
     log_data = requests.get(base_link+links_ns.logbook.prange+dr_s+'/'+dr_e).json()
-    grouped_data = []
-    for _, group in groupby(log_data, lambda x: x['position']['positionId']):
-        # Create a list of "logbookId" for each "positionId"
-        for x in group:
-            checkIn = x['checkinTime']
-            checkOut = x['checkoutTime']
-            d = {
-                "logbookId":x['logbookId'],
-                "positionId":x['position']['positionId'],
-                "employeeId":x['position']["employee"]["employeeId"],
-                "fullName":x['position']["employee"]["lastName"]+' '+x['position']["employee"]["firstName"],
-                "checkIn":checkIn,
-                "checkOut":checkOut,
-                "logCount":2,
-                "isLate": time_diff(checkIn) < 0
-                }
-        grouped_data.append(d)
-    
-    presence = len (grouped_data)
-    lateCount = len([1 for x in grouped_data if x["isLate"]==True])
-    logDate = log_data[0]["logDate"]
-    meta_data = {
-        "presence":presence,
-        "lateCount":lateCount,
-        "logDate":logDate
-    }
+    if len(log_data)>0:
+        grouped_data = []
+        for _, group in groupby(log_data, lambda x: x['position']['positionId']):
+            # Create a list of "logbookId" for each "positionId"
+            for x in group:
+                checkIn = x['checkinTime']
+                checkOut = x['checkoutTime']
+                d = {
+                    "logbookId":x['logbookId'],
+                    "positionId":x['position']['positionId'],
+                    "employeeId":x['position']["employee"]["employeeId"],
+                    "fullName":x['position']["employee"]["lastName"]+' '+x['position']["employee"]["firstName"],
+                    "checkIn":checkIn,
+                    "checkOut":checkOut,
+                    "logCount":2,
+                    "isLate": time_diff(checkIn) < 0
+                    }
+            grouped_data.append(d)
+        
+        presence = len (grouped_data)
+        lateCount = len([1 for x in grouped_data if x["isLate"]==True])
+        logDate = log_data[0]["logDate"]
+        meta_data = {
+            "presence":presence,
+            "lateCount":lateCount,
+            "logDate":logDate
+        }
 
-    return {
-        "metadata":meta_data,
-        "checkins":grouped_data
-    }
+        return {
+            "metadata":meta_data,
+            "checkins":grouped_data
+        }
+    else: return list()
 
 def get_all_employees_late_occurence(dr_s:str, dr_e:str): 
     #Todo Add date range from selected month name
     #Todo Add number of justified absences to monthLogCount
     log_data = requests.get(base_link+links_ns.logbook.prange+dr_s+'/'+dr_e).json()
-    df = json_normalize(log_data)
-    df["isLate"] = df["checkinTime"].map(time_diff) < 0
-    df_sn = df[["logbookId","isLate","position.positionId"]]
-    df_sn = df_sn.groupby('position.positionId').agg({'isLate': 'sum', 'logbookId': 'count'}).reset_index()
-    cols = ["position.positionId","position.employee.employeeId","position.employee.lastName","position.employee.firstName","isLate_x","logbookId_x"]
-    late_occ = df_sn.merge(df, on='position.positionId', how="left")[cols].drop_duplicates()
-    cols_new = ["positionId","employeeId","lastName","fisrtName","monthLateCount","monthLogCount"]
-    late_occ.columns = cols_new
-    late_occ_sorted = late_occ.sort_values(["monthLateCount","monthLogCount"], ascending=[False,True])
-    late_occ_sorted = late_occ_sorted.to_json(orient="records")
-    return json.loads(late_occ_sorted)
+    if len(log_data)>0:
+        df = json_normalize(log_data)
+        df["isLate"] = df["checkinTime"].map(time_diff) < 0
+        df_sn = df[["logbookId","isLate","position.positionId"]]
+        df_sn = df_sn.groupby('position.positionId').agg({'isLate': 'sum', 'logbookId': 'count'}).reset_index()
+        cols = ["position.positionId","position.employee.employeeId","position.employee.lastName","position.employee.firstName","isLate_x","logbookId_x"]
+        late_occ = df_sn.merge(df, on='position.positionId', how="left")[cols].drop_duplicates()
+        cols_new = ["positionId","employeeId","lastName","fisrtName","monthLateCount","monthLogCount"]
+        late_occ.columns = cols_new
+        late_occ_sorted = late_occ.sort_values(["monthLateCount","monthLogCount"], ascending=[False,True])
+        late_occ_sorted = late_occ_sorted.to_json(orient="records")
+        return json.loads(late_occ_sorted)
+    else: return list()
