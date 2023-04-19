@@ -11,6 +11,8 @@ from controllers.employee import get_employee_list_page_data
 from controllers.employee import get_employee_details_page_data
 from controllers.employee import get_dashboard_checkins_data
 
+from controllers.task import get_employee_task_list
+
 app = FastAPI()
 
 # add CORS middleware to allow cross-origin requests
@@ -39,6 +41,10 @@ async def get_employee(p:int):
 @app.get("/api/v1/dashboard/checkins/") #Todo Add date range
 async def get_dashboard_checkins():
     return get_dashboard_checkins_data()
+
+@app.get("/api/v1/task/list/employee/{p}")
+async def get_task_list_by_employee_id(p:str):
+    return get_employee_task_list(p)
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Union[str, None] = None):
