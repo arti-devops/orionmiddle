@@ -40,9 +40,9 @@ async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentP
 async def get_employee(p:int):
     return get_employee_details_page_data(str(p), "2023-04-01","2023-04-30")
 
-@app.get("/api/v1/dashboard/checkins/") #Todo Add date range
-async def get_dashboard_checkins():
-    return get_dashboard_checkins_data()
+@app.get("/api/v1/dashboard/checkins/{date_string}") #Todo Add date range
+async def get_dashboard_checkins(date_string:str):
+    return get_dashboard_checkins_data(date_string)
 
 @app.get("/api/v1/task/list/employee/{p}")
 async def get_task_list_by_employee_id(p:str):

@@ -45,10 +45,7 @@ def get_employee_details_page_data(p:str, dr_s:str, dr_e:str):
         "metadata": employee_metadata
     }
 
-def get_dashboard_checkins_data(): 
-    #Todo Add date range
-    #TODO from seleted date, infer month, date range, workdays count
-    date_string = "2023-03-15"
+def get_dashboard_checkins_data(date_string): 
     fdate, ldate = get_first_and_last_date_of_month(date_string)
     return {
         "checkins": {
