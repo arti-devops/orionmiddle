@@ -117,7 +117,7 @@ def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
         checkin_data = pd.json_normalize(checkin_data)
         checkin_data["isLate"] = checkin_data["checkinTime"].map(time_diff) < 0
         select_cols = ["logbookId","position.positionId","position.employee.employeeId","position.employee.lastName","position.employee.firstName","checkinTime","checkoutTime","isLate"]
-        rename_cols = ["logbookId","positionId","employeeId","lastName","firstName","checkinTime","checkoutTime","isLate"]
+        rename_cols = ["logbookId","positionId","employeeId","lastName","firstName","checkIn","checkOut","isLate"]
         df = checkin_data[select_cols]
         df.columns = rename_cols
         meta_data = {
@@ -134,7 +134,7 @@ def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
 def get_all_employees_late_occurence(dr_s:str, dr_e:str): 
     #Todo Add date range from selected month name
     #Todo Add number of justified absences to monthLogCount
-    log_data = requests.get(base_link+links_ns.logbook.prange+dr_s+'/'+dr_e).json()
+    log_data = requests.get(base_link+links_ns.logbook.range+dr_s+'/'+dr_e).json()
     if len(log_data)>0:
         df = json_normalize(log_data)
         df["isLate"] = df["checkinTime"].map(time_diff) < 0
