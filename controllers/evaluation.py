@@ -5,6 +5,8 @@ import json
 def get_employee_evaluation_list(p:str) -> dict:
     from interfaces.evaluation import get_evaluation_list_by_employee_id
     evals = get_evaluation_list_by_employee_id(p)
+    if evals.shape[0]>0:
+        evals = evals.sort_values("evalDate", ascending=False)
     print(evals)
     evals = evals.to_json(orient="records")
     evals = json.loads(evals)
