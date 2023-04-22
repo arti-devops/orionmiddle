@@ -33,7 +33,7 @@ def read_emp_list():
 
 @app.get("/api/v1/employee/list")
 async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1):
-    data = get_employee_list_page_data("2023-04-01","2023-04-30", q, perPage, currentPage)
+    data = get_employee_list_page_data("2023-01-01","2023-01-31", q, perPage, currentPage)
     return JSONResponse(content=data, headers=headers)
 
 @app.get("/api/v1/employee/details/{p}")
@@ -48,7 +48,7 @@ async def get_dashboard_checkins(date_string:str):
 async def get_task_list_by_employee_id(p:str):
     return get_employee_task_list(p)
 
-@app.get("/api/v1/course/list/employee/{p}")
+@app.get("/api/v1/training/list/employee/{p}")
 async def get_course_list_by_employee_id(p:str):
     return get_employee_course_list(p)
 
