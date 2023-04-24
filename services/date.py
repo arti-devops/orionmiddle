@@ -45,3 +45,21 @@ def get_first_and_last_date_of_month(date_string):
     last_date = last_date - timedelta(days=last_date.day)
 
     return first_date.strftime("%Y-%m-%d"), last_date.strftime("%Y-%m-%d")
+
+def generate_business_days_in_month(date_str: str):
+    from pandas.tseries.offsets import BDay
+    from calendar import monthrange
+    # Convert input date string to pandas datetime
+    date = pd.to_datetime(date_str)
+    # Extract year and month from the input date
+    year = date.year
+    month = date.month
+    # Determine the last valid day of the month
+    last_day = monthrange(year, month)[1]
+    # Update the end date of the date range to the last valid day of the month
+    date_range = pd.date_range(start=f"{year}-{month}-01", end=f"{year}-{month}-{last_day}", freq='B')
+    # Filter the dates to get only business days
+    business_days = date_range[date_range.isin(pd.date_range(date_range[0], date_range[-1], freq=BDay()))]
+    # Convert the resulting pandas DatetimeIndex to a list of strings in YYYY-mm-dd format
+    business_days_list = business_days.strftime('%Y-%m-%d').tolist()
+    return business_days_list

@@ -12,6 +12,7 @@ from controllers.employee import get_employee_details_page_data
 from controllers.employee import get_dashboard_checkins_data
 
 from controllers.task import get_employee_task_list
+from controllers.logbook import get_employee_logbook
 from controllers.course import get_employee_course_list
 from controllers.evaluation import get_employee_evaluation_list
 
@@ -55,6 +56,10 @@ async def get_course_list_by_employee_id(p:str):
 @app.get("/api/v1/evaluation/list/employee/{p}")
 async def get_evaluation_list_by_employee_id(p:str):
     return get_employee_evaluation_list(p)
+
+@app.get("/api/v1/logbook/employee/{p}/{date_string}")
+async def get_logbook_by_employee_id(p:str, date_string:str):
+    return get_employee_logbook(p, date_string)
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Union[str, None] = None):
