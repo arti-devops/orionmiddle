@@ -12,6 +12,7 @@ from controllers.employee import get_employee_details_page_data
 from controllers.employee import get_dashboard_checkins_data
 
 from controllers.task import get_employee_task_list
+from controllers.task import get_task_statistics
 from controllers.logbook import get_employee_logbook
 from controllers.course import get_employee_course_list
 from controllers.evaluation import get_employee_evaluation_list
@@ -48,6 +49,10 @@ async def get_dashboard_checkins(date_string:str):
 @app.get("/api/v1/task/list/employee/{p}")
 async def get_task_list_by_employee_id(p:str):
     return get_employee_task_list(p)
+
+@app.get("/api/v1/task/stats/")
+async def get_all_task_statistics():
+    return get_task_statistics()
 
 @app.get("/api/v1/training/list/employee/{p}")
 async def get_course_list_by_employee_id(p:str):
