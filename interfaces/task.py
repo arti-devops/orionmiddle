@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 from services.links import *
+from services.processing import compute_date_progression
 
 def get_task_list_by_employee_id(p:str):
     link_to_emp_tasks = base_link+links_ns.taskrole.position+p
@@ -38,3 +39,28 @@ def get_all_task_statistics() -> pd.DataFrame:
         grouped = grouped.sort_values(by='status', key=lambda x: x.map({status: i for i, status in enumerate(custom_order)}))
         # Return
         return grouped
+    
+def get_all_tasks() -> pd.DataFrame:
+    req = requests.get(base_link+links_ns.task.all).json() # Risk of empty list
+    if len(req) > 0:
+        task = pd.json_normalize(req)
+        task = task[["taskId","code","name","comment","startDate","endDate","status"]].copy()
+        task["progression"] = compute_date_progression(task)
+
+        req = requests.get(base_link+links_ns.taskrole.all).json() # Risk of empty list
+        projects = pd.json_normalize(req)
+        select_cols = ["taskroleId","task.taskId"]
+        rename_cols = ["taskroleId","taskId"]
+        projects = projects[select_cols].copy()
+        projects.columns = rename_cols
+
+        # Groupe data on taskId to get number of people working on a project
+        r_count = projects.groupby(by=["taskId"]).count()["taskroleId"].reset_index()
+        r_count.rename(columns={"taskroleId":"resources"}, inplace=True)
+
+        df = pd.merge(left=task, right=r_count, how='left')
+        df["resources"] = df.resources.fillna(0).astype("int")
+        df["startDate"] = df.startDate.astype("str")
+        df["endDate"] = df.endDate.astype("str")
+        return df
+    else: return pd.DataFrame(list())
