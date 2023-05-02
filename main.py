@@ -11,10 +11,11 @@ from controllers.employee import get_employee_list_page_data
 from controllers.employee import get_employee_details_page_data
 from controllers.employee import get_dashboard_checkins_data
 
-from controllers.task import get_employee_task_list
-from controllers.task import get_task_statistics
 from controllers.task import get_task_list
+from controllers.task import get_task_statistics
+from controllers.task import get_employee_task_list
 from controllers.task import get_filtered_task_list
+from controllers.task import get_single_task_details
 from controllers.logbook import get_employee_logbook
 from controllers.course import get_employee_course_list
 from controllers.evaluation import get_employee_evaluation_list
@@ -44,6 +45,11 @@ async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentP
 async def get_filter_task_list(q: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1):
     data = get_filtered_task_list(q, perPage, currentPage)
     return JSONResponse(content=data, headers=headers)
+
+@app.get("/api/v1/task/details/{tid}")
+async def get_task_details(tid:str):
+    return get_single_task_details(tid)
+
 
 @app.get("/api/v1/employee/details/{p}")
 async def get_employee(p:int):

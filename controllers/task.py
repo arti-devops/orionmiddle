@@ -43,3 +43,15 @@ def get_filtered_task_list(q, perPage, currentPage):
         sortedfilteredUsers = sortedfilteredUsers[firstIndex:lastIndex]
         data = {"tasks": sortedfilteredUsers, "totalPage": totalPage, "totalTasks": totalUsers}
     return data
+
+def get_single_task_details(id) -> dict:
+    task = get_task_details(id)
+    bio = task["bio"].to_json(orient="records")
+    stats = task["stats"].to_json(orient="records")
+    tasks = task["tasks"].to_json(orient="records")
+    resources = task["resources"].to_json(orient="records")
+    bio = json.loads(bio)
+    stats = json.loads(stats)
+    tasks = json.loads(tasks)
+    resources = json.loads(resources)
+    return {"bio": bio, "stats":stats, "tasks":tasks, "resources":resources}
