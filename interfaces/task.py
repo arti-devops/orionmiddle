@@ -110,10 +110,10 @@ def get_task_details(id) -> dict:
     if len(data_task)>0:
         tasks_df = data_task[["taskId","code","name","type","status","endDate"]]
         if len(data_resources)>0:
-            resources_df = data_resources[["role","task.taskId","position.employee.firstName","position.employee.lastName"]]
+            resources_df = data_resources[["role","task.taskId","position.employee.employeeId","position.employee.firstName","position.employee.lastName"]]
             df = pd.merge(left=tasks_df, right=resources_df, left_on="taskId", right_on="task.taskId")
             df.drop(columns=["task.taskId"], inplace=True)
-            rename_col = ["taskId","code","name","type","status","endDate","role","firstName","lastName"]
+            rename_col = ["taskId","code","name","type","status","endDate","role","employeeId","firstName","lastName"]
             df.columns = rename_col
 
     # Resources
@@ -129,7 +129,7 @@ def get_task_details(id) -> dict:
         result = pd.concat([total_tasks, finished_tasks, ratio_finished], axis=1)
         result.columns = ['totalTasks', 'finishedTasks', 'ratioFinished']
         result.reset_index(inplace=True)
-        df_r = pd.merge(left=result, right=emp_task_list.groupby("employeeId")[["lastName","firstName"]].first().reset_index(), how='left')
+        df_r = pd.merge(left=result, right=emp_task_list.groupby("employeeId")[["lastName","firstName","role"]].first().reset_index(), how='left')
         print(df_r)
     return {
         "bio":bio,
