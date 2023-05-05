@@ -45,7 +45,7 @@ def get_all_tasks() -> pd.DataFrame:
     req = requests.get(base_link+links_ns.task.all).json() # Risk of empty list
     if len(req) > 0:
         task = pd.json_normalize(req)
-        task = task[["taskId","code","name","comment","startDate","endDate","status"]].copy()
+        task = task[["taskId","code","name","type","comment","startDate","endDate","status"]].copy()
         task["progression"] = compute_date_progression(task)
 
         req = requests.get(base_link+links_ns.taskrole.all).json() # Risk of empty list
