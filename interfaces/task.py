@@ -115,6 +115,26 @@ def get_task_details(id) -> dict:
             df.drop(columns=["task.taskId"], inplace=True)
             rename_col = ["taskId","code","name","type","status","endDate","role","employeeId","firstName","lastName"]
             df.columns = rename_col
+        else:
+            resources_col = dict({
+                "role":None,
+                "task.taskId":None,
+                "position.employee.employeeId":None,
+                "position.employee.firstName":None,
+                "position.employee.lastName":None
+            })
+
+            tasks_df = data_task[["taskId","code","name","type","status","endDate"]].copy()
+
+            if data_resources.shape[0]==0:
+                resources_df = pd.DataFrame([resources_col])
+                df = pd.concat([tasks_df, resources_df])
+
+            df.drop(columns=["task.taskId"], inplace=True)
+            rename_col = ["taskId","code","name","type","status","endDate","role","employeeId","firstName","lastName"]
+            df.columns = rename_col
+            df.reset_index(inplace=True, drop=["index"])
+            df = df.drop(df.index[-1])
 
     # Resources
     df_r = pd.DataFrame()
