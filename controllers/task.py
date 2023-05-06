@@ -24,7 +24,7 @@ def get_task_list():
     tasks = json.loads(tasks)
     return {"stats": tasks}
 
-def get_filtered_task_list(q, direction, status, perPage, currentPage):
+def get_filtered_task_list(q, ptype, direction, status, perPage, currentPage):
     import math
     data = None
     if currentPage == 0:
@@ -34,7 +34,8 @@ def get_filtered_task_list(q, direction, status, perPage, currentPage):
     queryLower = q.lower()
     direction = direction.lower()
     status = status.lower()
-    filteredUsers = [task for task in tasks if ((queryLower in task["name"].lower() or queryLower in task["code"].lower() or queryLower in task["comment"].lower() or queryLower in task["status"].lower()) and task['comment'].lower() == (direction or task['comment'].lower()) and task['status'].lower() == (status or task['status'].lower()))][::-1]
+    ptype = ptype.lower()
+    filteredUsers = [task for task in tasks if ((queryLower in task["name"].lower() or queryLower in task["code"].lower() or queryLower in task["comment"].lower() or queryLower in task["status"].lower()) and task['type'].lower() == (ptype or task['type'].lower()) and task['comment'].lower() == (direction or task['comment'].lower()) and task['status'].lower() == (status or task['status'].lower()))][::-1]
     # Sort the data by name in ascending order
     sortedfilteredUsers = sorted(filteredUsers, key=lambda x: x['code'],reverse=False)
     totalPage = math.ceil(len(filteredUsers) / perPage) if perPage else 1
