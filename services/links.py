@@ -3,7 +3,7 @@ from services.namespace import Namespace
 #base_link = "http://172.30.1.152:8080/api/v1/"
 # base_link = "http://172.23.32.1:8080/api/v1/"
 # base_link = "http://172.28.22.131:8080/api/v1/"
-base_link = "http://192.168.0.218:8087/api/v1/"
+base_link = "http://192.168.0.218:8080/api/v1/"
 
 links = {
     "position":Namespace({
