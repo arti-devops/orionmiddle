@@ -1,5 +1,5 @@
 from typing import Union
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Header
 from typing import Optional
 
 from fastapi.responses import JSONResponse
@@ -26,9 +26,9 @@ app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], allow_headers=['*'])
 headers = {"Access-Control-Allow-Origin": "*"}
 
-@app.get("/")
-def read_root():
-    pass
+@app.get("/items")
+async def read_items(user_agent: str = Header(None)):
+    return {"User-Agent": user_agent}
     # return get_employee_list_page_data("2023-04-01","2023-04-30")
 
 @app.get("/api/v1/e/list")
@@ -37,13 +37,14 @@ def read_emp_list():
     # return get_employee_list_page_data("2023-04-01","2023-04-30")
 
 @app.get("/api/v1/employee/list")
-async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1):
-    data = get_employee_list_page_data("2023-01-01","2023-01-31", q, perPage, currentPage)
+async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1, x_filter: str = Header(None)):
+    data = get_employee_list_page_data("2023-01-01","2023-01-31", q, perPage, currentPage, x_filter)
+    print({"X-Custom-Header": x_filter})
     return JSONResponse(content=data, headers=headers)
 
 @app.get("/api/v1/task/list/filter")
-async def get_filter_task_list(q: Optional[str] = "", direction: Optional[str] = "", status: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1):
-    data = get_filtered_task_list(q, direction, status, perPage, currentPage)
+async def get_filter_task_list(q: Optional[str] = "", ptype: Optional[str] = "",  direction: Optional[str] = "", status: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1, x_filter: str = Header(None)):
+    data = get_filtered_task_list(q, ptype, direction, status, perPage, currentPage, x_filter)
     return JSONResponse(content=data, headers=headers)
 
 @app.get("/api/v1/task/details/{tid}")
@@ -56,8 +57,8 @@ async def get_employee(p:int):
     return get_employee_details_page_data(str(p), "2023-04-01","2023-04-30")
 
 @app.get("/api/v1/dashboard/checkins/{date_string}") #Todo Add date range
-async def get_dashboard_checkins(date_string:str):
-    return get_dashboard_checkins_data(date_string)
+async def get_dashboard_checkins(date_string:str, x_filter: str = Header(None)):
+    return get_dashboard_checkins_data(date_string, x_filter)
 
 @app.get("/api/v1/task/list/employee/{p}")
 async def get_task_list_by_employee_id(p:str):

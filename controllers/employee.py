@@ -13,11 +13,18 @@ from interfaces.employee import get_employee_task_metadata
 from interfaces.employee import get_all_employees_ondate_checkins
 from interfaces.employee import get_all_employees_late_occurence
 
-def get_employee_list_page_data(s_date:str, e_date:str, q, perPage, currentPage):
+from interfaces.filter import get_positionId_by_direction, filter_df_by_col_value
+
+def get_employee_list_page_data(s_date:str, e_date:str, q, perPage, currentPage, filter="HOLLOW"):
     data = None
     if currentPage == 0:
         currentPage = 1
     emp_data = get_employee_list_bio_data()
+    
+    # Filter data
+    emp_data = filter_df_by_col_value(emp_data, "direction", filter)
+    
+    emp_data = emp_data.to_dict(orient="records")
     check_data = get_employee_list_checkin_data(emp_data, s_date, e_date)[0]
     users = get_employee_list_task_data(check_data)[0]
     queryLower = q.lower()
@@ -45,15 +52,15 @@ def get_employee_details_page_data(p:str, dr_s:str, dr_e:str):
         "metadata": employee_metadata
     }
 
-def get_dashboard_checkins_data(date_string): 
+def get_dashboard_checkins_data(date_string, filter): 
     fdate, ldate = get_first_and_last_date_of_month(date_string)
     return {
         "checkins": {
             "log_date": date_string,
-            "checkins": get_all_employees_ondate_checkins(date_string, date_string),
+            "checkins": get_all_employees_ondate_checkins(date_string, date_string, filter),
             },
         "late": {
             "late_date": ldate,
-            "late_occurence": get_all_employees_late_occurence(fdate, ldate)
+            "late_occurence": get_all_employees_late_occurence(fdate, ldate, filter)
         }
     }

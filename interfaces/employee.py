@@ -6,13 +6,15 @@ from services.date import *
 from services.links import *
 from services.processing import *
 
-def get_employee_list_bio_data():
+from interfaces.filter import get_positionId_by_direction, filter_df_by_col_value
+
+def get_employee_list_bio_data() -> pd.DataFrame:
     emp_data_list = list()
     positions = requests.get(base_link+links_ns.position.all_active).json()
     for p in positions:
         emp_data = dict()
-        emp_data["position_id"] = p["positionId"]
-        emp_data["employee_id"] = p["employee"]["employeeId"]
+        emp_data["positionId"] = p["positionId"]
+        emp_data["employeeId"] = p["employee"]["employeeId"]
         emp_data["fullname"] = p["employee"]["lastName"] +" "+ p["employee"]["firstName"].strip() 
         emp_data["matricula"] = p["employee"]["matricule"]
         emp_data["rolename"] = p["role"]["name"]
@@ -22,14 +24,15 @@ def get_employee_list_bio_data():
         emp_data["contact"] = p["employee"]["contact"]
         emp_data["location"] = p["location"]
         emp_data_list.append(emp_data)
-    return emp_data_list
+    emp = pd.DataFrame(emp_data_list)
+    return emp
 
 def get_employee_list_checkin_data(emp_list:list, start_date:str, end_date:str):
     log_data_list = []
     for emp in emp_list:
         logd = dict()
         e = Namespace(emp)
-        pid = e.position_id
+        pid = e.positionId
         lc = generate_daterange_link(links_ns.logbook, pid, start_date, end_date)
         la = generate_daterange_link(links_ns.absence, pid, start_date, end_date)
         reqa = requests.get(la)
@@ -51,7 +54,7 @@ def get_employee_list_task_data(emp_list):
     for emp in emp_list:
         taskd = dict()
         e = Namespace(emp)
-        pid = e.position_id
+        pid = e.positionId
         l = generate_position_req_link(links_ns.taskrole, pid)
         d = requests.get(l).json()
         if len(d) == 0:
@@ -70,8 +73,8 @@ def get_employee_bio_data(positionId:str):
     positions = [requests.get(base_link+links_ns.position.single+positionId).json()]
     for p in positions:
         emp_data = dict()
-        emp_data["position_id"] = p["positionId"]
-        emp_data["employee_id"] = p["employee"]["employeeId"]
+        emp_data["positionId"] = p["positionId"]
+        emp_data["employeeId"] = p["employee"]["employeeId"]
         emp_data["fullname"] = p["employee"]["lastName"] +" "+ p["employee"]["firstName"].strip() 
         emp_data["matricula"] = p["employee"]["matricule"]
         emp_data["rolename"] = p["role"]["name"]
@@ -109,7 +112,7 @@ def get_employee_course_metadata(p:str):
     done = len([1 for x in course_data if x["status"] == "FINISHED"])
     return dict({"nb":nb, "done":done})
 
-def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
+def get_all_employees_ondate_checkins(dr_s:str, dr_e:str, filter="HOLLOW"):
     #TODO function is subject to change if daily data contains many records from a single employee
     log_data = requests.get(base_link+links_ns.logbook.range+dr_s+'/'+dr_e).json()
     if len(log_data)>0:
@@ -120,6 +123,12 @@ def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
         rename_cols = ["logbookId","positionId","employeeId","lastName","firstName","checkIn","checkOut","isLate"]
         df = checkin_data[select_cols]
         df.columns = rename_cols
+
+        # fitler data
+        dirmap = get_positionId_by_direction()
+        df['direction'] = df['positionId'].apply(lambda x: next((k for k, v in dirmap.items() if x in v)))
+        df = filter_df_by_col_value(df, "direction", filter)
+
         meta_data = {
             "late_count" : len([1 for x in df.isLate if x==True]),
             "log_count" : df.shape[0]
@@ -131,7 +140,7 @@ def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
         }
     else: return list()
 
-def get_all_employees_late_occurence(dr_s:str, dr_e:str): 
+def get_all_employees_late_occurence(dr_s:str, dr_e:str, filter="HOLLOW"): 
     #Todo Add date range from selected month name
     #Todo Add number of justified absences to monthLogCount
     log_data = requests.get(base_link+links_ns.logbook.range+dr_s+'/'+dr_e).json()
@@ -144,6 +153,12 @@ def get_all_employees_late_occurence(dr_s:str, dr_e:str):
         late_occ = df_sn.merge(df, on='position.positionId', how="left")[cols].drop_duplicates()
         cols_new = ["positionId","employeeId","lastName","fisrtName","monthLateCount","monthLogCount"]
         late_occ.columns = cols_new
+
+        # fitler data
+        dirmap = get_positionId_by_direction()
+        late_occ['direction'] = late_occ['positionId'].apply(lambda x: next((k for k, v in dirmap.items() if x in v)))
+        late_occ = filter_df_by_col_value(late_occ, "direction", filter)
+
         late_occ_sorted = late_occ.sort_values(["monthLateCount","monthLogCount"], ascending=[False,True])
         late_occ_sorted = late_occ_sorted.to_json(orient="records")
         return json.loads(late_occ_sorted)
