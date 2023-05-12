@@ -6,14 +6,15 @@ def get_positionId_by_direction() -> dict:
     req = requests.get(base_link+links_ns.position.all_active).json()
     position = pd.json_normalize(req)
 
-    select_col = ["positionId","employee.employeeId","subdivision.code",'service.subdivision.code']
-    rename_col = ["positionId","employeeId","codeA","codeB"]
-    
+    select_col = ["positionId","employee.employeeId","subdivision.code",'service.subdivision.code','service.subdivision.direction.shortName','subdivision.direction.shortName']
+    rename_col = ["positionId","employeeId","codeA","codeB","direction","dir"]
     position_df = position[select_col].copy()
     position_df.columns = rename_col
-    position_df["direction"] = position_df.codeA.fillna(position_df.codeB)
-    position_df.drop(columns=["codeA","codeB"], inplace=True)
-    position_df.direction = position_df.direction.map(lambda x: x.split("_")[1])
+    position_df["dir_tmp"] = position_df.codeA.fillna(position_df.codeB)
+    position_df["direction"] = position_df.direction.fillna(position_df.dir)
+    position_df["direction"] = position_df.direction.fillna(position_df.dir_tmp)
+    position_df.drop(columns=["codeA","codeB","dir","dir_tmp"], inplace=True)
+    position_df.direction = position_df.direction.map(lambda x: x.split("_")[1] if (isinstance(x, str) and "_" in x) else x)
 
     df = position_df.copy()
     employee_ids_by_direction = {}
