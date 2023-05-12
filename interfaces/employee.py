@@ -6,6 +6,8 @@ from services.date import *
 from services.links import *
 from services.processing import *
 
+from interfaces.filter import get_positionId_by_direction, filter_df_by_col_value
+
 def get_employee_list_bio_data() -> pd.DataFrame:
     emp_data_list = list()
     positions = requests.get(base_link+links_ns.position.all_active).json()
@@ -110,7 +112,7 @@ def get_employee_course_metadata(p:str):
     done = len([1 for x in course_data if x["status"] == "FINISHED"])
     return dict({"nb":nb, "done":done})
 
-def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
+def get_all_employees_ondate_checkins(dr_s:str, dr_e:str, filter="HOLLOW"):
     #TODO function is subject to change if daily data contains many records from a single employee
     log_data = requests.get(base_link+links_ns.logbook.range+dr_s+'/'+dr_e).json()
     if len(log_data)>0:
@@ -121,6 +123,12 @@ def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
         rename_cols = ["logbookId","positionId","employeeId","lastName","firstName","checkIn","checkOut","isLate"]
         df = checkin_data[select_cols]
         df.columns = rename_cols
+
+        # fitler data
+        dirmap = get_positionId_by_direction()
+        df['direction'] = df['positionId'].apply(lambda x: next((k for k, v in dirmap.items() if x in v)))
+        df = filter_df_by_col_value(df, "direction", filter)
+
         meta_data = {
             "late_count" : len([1 for x in df.isLate if x==True]),
             "log_count" : df.shape[0]
@@ -132,7 +140,7 @@ def get_all_employees_ondate_checkins(dr_s:str, dr_e:str):
         }
     else: return list()
 
-def get_all_employees_late_occurence(dr_s:str, dr_e:str): 
+def get_all_employees_late_occurence(dr_s:str, dr_e:str, filter="HOLLOW"): 
     #Todo Add date range from selected month name
     #Todo Add number of justified absences to monthLogCount
     log_data = requests.get(base_link+links_ns.logbook.range+dr_s+'/'+dr_e).json()
@@ -145,6 +153,12 @@ def get_all_employees_late_occurence(dr_s:str, dr_e:str):
         late_occ = df_sn.merge(df, on='position.positionId', how="left")[cols].drop_duplicates()
         cols_new = ["positionId","employeeId","lastName","fisrtName","monthLateCount","monthLogCount"]
         late_occ.columns = cols_new
+
+        # fitler data
+        dirmap = get_positionId_by_direction()
+        late_occ['direction'] = late_occ['positionId'].apply(lambda x: next((k for k, v in dirmap.items() if x in v)))
+        late_occ = filter_df_by_col_value(late_occ, "direction", filter)
+
         late_occ_sorted = late_occ.sort_values(["monthLateCount","monthLogCount"], ascending=[False,True])
         late_occ_sorted = late_occ_sorted.to_json(orient="records")
         return json.loads(late_occ_sorted)

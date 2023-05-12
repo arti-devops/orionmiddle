@@ -35,7 +35,7 @@ def filter_df_by_col_value(df, col, value, selector="positionId"):
     matcher = get_positionId_by_direction()
     if selector == "taskId":
         matcher = get_taskId_by_direction()
-    if value is not "HOLLOW":
+    if value != "HOLLOW":
         drn_df = df[df[col] == value]
         employee_ids = matcher[value]
         # Filter the "DRRN" DataFrame to only include rows with employee IDs in the list

@@ -52,15 +52,15 @@ def get_employee_details_page_data(p:str, dr_s:str, dr_e:str):
         "metadata": employee_metadata
     }
 
-def get_dashboard_checkins_data(date_string): 
+def get_dashboard_checkins_data(date_string, filter): 
     fdate, ldate = get_first_and_last_date_of_month(date_string)
     return {
         "checkins": {
             "log_date": date_string,
-            "checkins": get_all_employees_ondate_checkins(date_string, date_string),
+            "checkins": get_all_employees_ondate_checkins(date_string, date_string, filter),
             },
         "late": {
             "late_date": ldate,
-            "late_occurence": get_all_employees_late_occurence(fdate, ldate)
+            "late_occurence": get_all_employees_late_occurence(fdate, ldate, filter)
         }
     }
