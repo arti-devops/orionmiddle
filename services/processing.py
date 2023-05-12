@@ -60,3 +60,22 @@ def get_taskrole_status_list(emp_taskrole):
 
 def computer_finished_tasks(status_list):
     return len([1 for x in status_list if x=="FINISHED"])
+
+def compute_date_progression(df, startDate="startDate", endDate="endDate"):
+    import pandas as pd
+    df[startDate] = pd.to_datetime(df[startDate])
+    df[endDate] = pd.to_datetime(df[endDate])
+    # Calculate the total duration of each project in days
+    df['duration'] = (df[endDate] - df[startDate]).dt.days
+    # Calculate the current progress of each project in days
+    today = pd.Timestamp.now().date()
+    today = pd.Timestamp(today) # Convert today to pd.Timestamp object
+    df['currentProgress'] = (today - df[startDate]).dt.days
+    # Calculate the progression as a percentage
+    df['progression'] = (df['currentProgress'] / df['duration']) * 100
+    df['progression'] = df['progression'].clip(lower=0)
+    # Set progression to 100 if it's greater than 100
+    df['progression'] = df['progression'].clip(upper=100)
+    df['progression'] = df['progression'].round(2)
+    df.drop(columns=["duration","currentProgress"], inplace=True)
+    return df['progression']

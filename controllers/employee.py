@@ -1,5 +1,7 @@
 import math
 
+from services.date import get_first_and_last_date_of_month
+
 from interfaces.employee import get_employee_list_bio_data
 from interfaces.employee import get_employee_list_checkin_data
 from interfaces.employee import get_employee_list_task_data
@@ -43,8 +45,15 @@ def get_employee_details_page_data(p:str, dr_s:str, dr_e:str):
         "metadata": employee_metadata
     }
 
-def get_dashboard_checkins_data(): #Todo Add date range
+def get_dashboard_checkins_data(date_string): 
+    fdate, ldate = get_first_and_last_date_of_month(date_string)
     return {
-        "checkins": get_all_employees_ondate_checkins('2023-04-23','2023-04-23'),
-        "late_occurence": get_all_employees_late_occurence('2023-04-01','2023-04-30')
+        "checkins": {
+            "log_date": date_string,
+            "checkins": get_all_employees_ondate_checkins(date_string, date_string),
+            },
+        "late": {
+            "late_date": ldate,
+            "late_occurence": get_all_employees_late_occurence(fdate, ldate)
+        }
     }

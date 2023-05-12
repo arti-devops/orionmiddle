@@ -1,6 +1,9 @@
 from services.namespace import Namespace
 
-base_link = "http://172.27.80.1:8080/api/v1/"
+#base_link = "http://172.30.1.152:8080/api/v1/"
+# base_link = "http://172.23.32.1:8080/api/v1/"
+# base_link = "http://172.28.22.131:8080/api/v1/"
+base_link = "http://192.168.0.218:8080/api/v1/"
 
 links = {
     "position":Namespace({
@@ -14,11 +17,13 @@ links = {
     }),
     "task":Namespace({
         "all":"task/all",
-        "single":"task/"
+        "single":"task/",
+        "project":"task/project/list/" # {projectId} get project task list
     }),
     "taskrole":Namespace({
         "all":"taskrole/all",
         "single":"taskrole/",
+        "task":"taskrole/task/",#{taskId}
         "position":"taskrole/position/"
     }),
     "logbook":Namespace({

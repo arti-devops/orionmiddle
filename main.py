@@ -11,6 +11,15 @@ from controllers.employee import get_employee_list_page_data
 from controllers.employee import get_employee_details_page_data
 from controllers.employee import get_dashboard_checkins_data
 
+from controllers.task import get_task_list
+from controllers.task import get_task_statistics
+from controllers.task import get_employee_task_list
+from controllers.task import get_filtered_task_list
+from controllers.task import get_single_task_details
+from controllers.logbook import get_employee_logbook
+from controllers.course import get_employee_course_list
+from controllers.evaluation import get_employee_evaluation_list
+
 app = FastAPI()
 
 # add CORS middleware to allow cross-origin requests
@@ -27,18 +36,52 @@ def read_emp_list():
     pass
     # return get_employee_list_page_data("2023-04-01","2023-04-30")
 
-@app.get("/api/v1/emp/list")
+@app.get("/api/v1/employee/list")
 async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1):
-    data = get_employee_list_page_data("2023-04-01","2023-04-30", q, perPage, currentPage)
+    data = get_employee_list_page_data("2023-01-01","2023-01-31", q, perPage, currentPage)
     return JSONResponse(content=data, headers=headers)
+
+@app.get("/api/v1/task/list/filter")
+async def get_filter_task_list(q: Optional[str] = "", direction: Optional[str] = "", status: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1):
+    data = get_filtered_task_list(q, direction, status, perPage, currentPage)
+    return JSONResponse(content=data, headers=headers)
+
+@app.get("/api/v1/task/details/{tid}")
+async def get_task_details(tid:str):
+    return get_single_task_details(tid)
+
 
 @app.get("/api/v1/employee/details/{p}")
 async def get_employee(p:int):
     return get_employee_details_page_data(str(p), "2023-04-01","2023-04-30")
 
-@app.get("/api/v1/dashboard/checkins/") #Todo Add date range
-async def get_dashboard_checkins():
-    return get_dashboard_checkins_data()
+@app.get("/api/v1/dashboard/checkins/{date_string}") #Todo Add date range
+async def get_dashboard_checkins(date_string:str):
+    return get_dashboard_checkins_data(date_string)
+
+@app.get("/api/v1/task/list/employee/{p}")
+async def get_task_list_by_employee_id(p:str):
+    return get_employee_task_list(p)
+
+@app.get("/api/v1/task/stats/")
+async def get_all_task_statistics():
+    return get_task_statistics()
+
+@app.get("/api/v1/task/list/")
+async def get_all_tasks_list():
+    return get_task_list()
+
+@app.get("/api/v1/training/list/employee/{p}")
+async def get_course_list_by_employee_id(p:str):
+    return get_employee_course_list(p)
+
+@app.get("/api/v1/evaluation/list/employee/{p}")
+async def get_evaluation_list_by_employee_id(p:str):
+    return get_employee_evaluation_list(p)
+
+@app.get("/api/v1/logbook/employee/{p}/{date_string}")
+async def get_logbook_by_employee_id(p:str, date_string:str):
+    return get_employee_logbook(p, date_string)
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Union[str, None] = None):
