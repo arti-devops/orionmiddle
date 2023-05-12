@@ -26,10 +26,18 @@ def get_positionId_by_direction() -> dict:
     #print(employee_ids_by_direction)
     return employee_ids_by_direction
 
-def filter_df_by_col_value(df, col, value):
+def get_taskId_by_direction() -> dict:
+    req = requests.get(base_link+links_ns.task.all).json()
+    tasks = pd.json_normalize(req)
+    return tasks.groupby('comment')['taskId'].apply(list).to_dict()
+
+def filter_df_by_col_value(df, col, value, selector="positionId"):
     matcher = get_positionId_by_direction()
-    print(matcher)
-    drn_df = df[df[col] == value]
-    employee_ids = matcher[value]
-    # Filter the "DRRN" DataFrame to only include rows with employee IDs in the list
-    return drn_df[drn_df['positionId'].isin(employee_ids)]
+    if selector == "taskId":
+        matcher = get_taskId_by_direction()
+    if value is not "HOLLOW":
+        drn_df = df[df[col] == value]
+        employee_ids = matcher[value]
+        # Filter the "DRRN" DataFrame to only include rows with employee IDs in the list
+        return drn_df[drn_df[selector].isin(employee_ids)]
+    else: return df

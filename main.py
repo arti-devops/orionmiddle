@@ -43,8 +43,8 @@ async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentP
     return JSONResponse(content=data, headers=headers)
 
 @app.get("/api/v1/task/list/filter")
-async def get_filter_task_list(q: Optional[str] = "", ptype: Optional[str] = "",  direction: Optional[str] = "", status: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1):
-    data = get_filtered_task_list(q, ptype, direction, status, perPage, currentPage)
+async def get_filter_task_list(q: Optional[str] = "", ptype: Optional[str] = "",  direction: Optional[str] = "", status: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1, x_filter: str = Header(None)):
+    data = get_filtered_task_list(q, ptype, direction, status, perPage, currentPage, x_filter)
     return JSONResponse(content=data, headers=headers)
 
 @app.get("/api/v1/task/details/{tid}")

@@ -1,5 +1,6 @@
 import json
 from interfaces.task import *
+from interfaces.filter import filter_df_by_col_value
 
 #TODO : returning task list when position is active
 def get_employee_task_list(p:str):
@@ -24,12 +25,16 @@ def get_task_list():
     tasks = json.loads(tasks)
     return {"stats": tasks}
 
-def get_filtered_task_list(q, ptype, direction, status, perPage, currentPage):
+def get_filtered_task_list(q, ptype, direction, status, perPage, currentPage, filter):
     import math
     data = None
     if currentPage == 0:
         currentPage = 1
     tasks = get_all_tasks()
+    
+    #Filter data
+    tasks = filter_df_by_col_value(tasks, "comment", filter, "taskId")
+    
     tasks = tasks.to_dict(orient="records")
     queryLower = q.lower()
     direction = direction.lower()
