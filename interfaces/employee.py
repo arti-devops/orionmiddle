@@ -6,13 +6,13 @@ from services.date import *
 from services.links import *
 from services.processing import *
 
-def get_employee_list_bio_data():
+def get_employee_list_bio_data() -> pd.DataFrame:
     emp_data_list = list()
     positions = requests.get(base_link+links_ns.position.all_active).json()
     for p in positions:
         emp_data = dict()
-        emp_data["position_id"] = p["positionId"]
-        emp_data["employee_id"] = p["employee"]["employeeId"]
+        emp_data["positionId"] = p["positionId"]
+        emp_data["employeeId"] = p["employee"]["employeeId"]
         emp_data["fullname"] = p["employee"]["lastName"] +" "+ p["employee"]["firstName"].strip() 
         emp_data["matricula"] = p["employee"]["matricule"]
         emp_data["rolename"] = p["role"]["name"]
@@ -22,14 +22,15 @@ def get_employee_list_bio_data():
         emp_data["contact"] = p["employee"]["contact"]
         emp_data["location"] = p["location"]
         emp_data_list.append(emp_data)
-    return emp_data_list
+    emp = pd.DataFrame(emp_data_list)
+    return emp
 
 def get_employee_list_checkin_data(emp_list:list, start_date:str, end_date:str):
     log_data_list = []
     for emp in emp_list:
         logd = dict()
         e = Namespace(emp)
-        pid = e.position_id
+        pid = e.positionId
         lc = generate_daterange_link(links_ns.logbook, pid, start_date, end_date)
         la = generate_daterange_link(links_ns.absence, pid, start_date, end_date)
         reqa = requests.get(la)
@@ -51,7 +52,7 @@ def get_employee_list_task_data(emp_list):
     for emp in emp_list:
         taskd = dict()
         e = Namespace(emp)
-        pid = e.position_id
+        pid = e.positionId
         l = generate_position_req_link(links_ns.taskrole, pid)
         d = requests.get(l).json()
         if len(d) == 0:
@@ -70,8 +71,8 @@ def get_employee_bio_data(positionId:str):
     positions = [requests.get(base_link+links_ns.position.single+positionId).json()]
     for p in positions:
         emp_data = dict()
-        emp_data["position_id"] = p["positionId"]
-        emp_data["employee_id"] = p["employee"]["employeeId"]
+        emp_data["positionId"] = p["positionId"]
+        emp_data["employeeId"] = p["employee"]["employeeId"]
         emp_data["fullname"] = p["employee"]["lastName"] +" "+ p["employee"]["firstName"].strip() 
         emp_data["matricula"] = p["employee"]["matricule"]
         emp_data["rolename"] = p["role"]["name"]
