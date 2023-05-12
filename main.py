@@ -1,5 +1,5 @@
 from typing import Union
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Header
 from typing import Optional
 
 from fastapi.responses import JSONResponse
@@ -26,9 +26,9 @@ app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], allow_headers=['*'])
 headers = {"Access-Control-Allow-Origin": "*"}
 
-@app.get("/")
-def read_root():
-    pass
+@app.get("/items")
+async def read_items(user_agent: str = Header(None)):
+    return {"User-Agent": user_agent}
     # return get_employee_list_page_data("2023-04-01","2023-04-30")
 
 @app.get("/api/v1/e/list")
@@ -37,8 +37,9 @@ def read_emp_list():
     # return get_employee_list_page_data("2023-04-01","2023-04-30")
 
 @app.get("/api/v1/employee/list")
-async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1):
-    data = get_employee_list_page_data("2023-01-01","2023-01-31", q, perPage, currentPage)
+async def get_users(q: Optional[str] = "", perPage: Optional[int] = 10, currentPage: Optional[int] = 1, x_filter: str = Header(None)):
+    data = get_employee_list_page_data("2023-01-01","2023-01-31", q, perPage, currentPage, x_filter)
+    print({"X-Custom-Header": x_filter})
     return JSONResponse(content=data, headers=headers)
 
 @app.get("/api/v1/task/list/filter")
